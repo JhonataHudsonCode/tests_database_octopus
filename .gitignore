@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.env
+.idea/
+.vscode/*.log
+reports/allure-results/*
+reports/allure-report/*
+!reports/allure-results/.gitkeep
+!reports/allure-report/.gitkeep
+dist/
+build/
+*.egg-info/

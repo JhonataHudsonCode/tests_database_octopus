@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Pytest: All",
+      "type": "shell",
+      "command": "pytest",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pytest: PostgreSQL",
+      "type": "shell",
+      "command": "pytest -m postgres",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: PostgreSQL Up",
+      "type": "shell",
+      "command": "docker compose up -d postgres",
+      "problemMatcher": []
+    }
+  ]
+}
