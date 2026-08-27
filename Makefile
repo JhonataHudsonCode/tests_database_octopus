@@ -1,4 +1,4 @@
-.PHONY: install test test-postgres report open-report serve-report up down clean
+.PHONY: install test test-postgres test-opensearch report open-report serve-report up down clean
 
 PYTHON ?= python3
 
@@ -12,6 +12,9 @@ test:
 test-postgres:
 	$(PYTHON) -m pytest -m postgres
 
+test-opensearch:
+	$(PYTHON) -m pytest -m opensearch
+
 report:
 	$(PYTHON) -m pytest
 
@@ -22,7 +25,7 @@ serve-report:
 	$(PYTHON) -m http.server 8000 --directory reports
 
 up:
-	docker compose up -d postgres
+	docker compose up -d postgres opensearch
 
 down:
 	docker compose down

@@ -269,7 +269,7 @@ Source DB -> Transformação -> Target DB
 
 # OpenSearch
 
-A base de conexão já está incluída.
+A conexão e o teste de saúde já estão incluídos.
 
 Variáveis:
 
@@ -294,7 +294,15 @@ connection = OpenSearchConnection(settings)
 client = connection.client
 ```
 
-Para criar testes de OpenSearch, mantenha o mesmo padrão:
+O teste usa `OpenSearchHealthRepository.check_connection()`, que chama
+`client.ping()` e valida que o cluster responde. Para executá-lo:
+
+```bash
+make up
+make test-opensearch
+```
+
+Para novos testes de OpenSearch, mantenha o mesmo padrão:
 
 ```text
 connection -> repository -> test

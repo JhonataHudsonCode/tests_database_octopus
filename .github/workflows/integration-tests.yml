@@ -25,6 +25,16 @@ jobs:
           --health-timeout 5s
           --health-retries 20
 
+      opensearch:
+        image: opensearchproject/opensearch:2.19.1
+        env:
+          discovery.type: single-node
+          DISABLE_INSTALL_DEMO_CONFIG: "true"
+          DISABLE_SECURITY_PLUGIN: "true"
+          OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+        ports:
+          - 9200:9200
+
     env:
       PG_HOST: localhost
       PG_PORT: 5432
@@ -34,6 +44,12 @@ jobs:
       PG_CONNECT_TIMEOUT: 5
       PG_TARGET_SCHEMA: pg_catalog
       PG_TARGET_TABLE: pg_type
+      OPENSEARCH_HOST: localhost
+      OPENSEARCH_PORT: 9200
+      OPENSEARCH_USER: admin
+      OPENSEARCH_PASSWORD: admin
+      OPENSEARCH_USE_SSL: false
+      OPENSEARCH_VERIFY_CERTS: false
 
     steps:
       - name: Checkout
@@ -51,7 +67,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run integration tests
-        run: pytest -m integration
+        run: |
+          until curl --fail --silent http://localhost:9200 >/dev/null; do sleep 2; done
+          pytest -m integration
 
       - name: Upload pytest-html report
         if: always()
