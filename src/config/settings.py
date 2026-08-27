@@ -24,6 +24,12 @@ def _to_bool(value: str) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def _optional_env(prefix: str, name: str, default: str = "") -> str:
+    normalized_prefix = prefix.strip("_").upper()
+    key = f"{normalized_prefix}_{name}" if normalized_prefix else name
+    return os.getenv(key, default).strip()
+
+
 @dataclass(frozen=True, slots=True)
 class PostgresSettings:
     host: str
@@ -93,6 +99,6 @@ class OpenSearchDashboardsSettings:
             password=_env(prefix, "PASSWORD", "admin"),
             use_ssl=_to_bool(_env(prefix, "USE_SSL", "false")),
             verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS", "false")),
-            path_prefix=_env(prefix, "PATH_PREFIX", "").rstrip("/"),
+            path_prefix=_optional_env(prefix, "PATH_PREFIX").rstrip("/"),
             request_timeout=int(_env(prefix, "REQUEST_TIMEOUT", "10")),
         )

@@ -11,12 +11,20 @@ from src.config.settings import (
     PostgresSettings,
 )
 from src.connections.opensearch import OpenSearchConnection
+from src.connections.opensearch_factory import OpenSearchConnectionFactory
 from src.connections.opensearch_dashboards import OpenSearchDashboardsConnection
 from src.connections.postgres import PostgresConnection
 from src.repositories.opensearch_dashboards_repository import (
     OpenSearchDashboardsRepository,
 )
 from src.repositories.opensearch_health_repository import OpenSearchHealthRepository
+from src.repositories.cognito_client_repository import CognitoClientRepository
+from src.repositories.opensearch_vulnerability_repository import (
+    OpenSearchVulnerabilityRepository,
+)
+from src.repositories.opensearch_client_rsa_repository import (
+    OpenSearchClientRsaRepository,
+)
 from src.repositories.postgres_catalog_repository import PostgresCatalogRepository
 
 
@@ -66,6 +74,68 @@ def opensearch_repository(
     opensearch_connection: OpenSearchConnection,
 ) -> OpenSearchHealthRepository:
     return OpenSearchHealthRepository(opensearch_connection)
+
+
+@pytest.fixture(scope="session")
+def cognito_postgres_settings() -> PostgresSettings:
+    if not os.getenv("COGNITO_PG_HOST"):
+        pytest.skip("COGNITO_PG_HOST não foi configurado.")
+
+    return PostgresSettings.from_env("COGNITO_PG")
+
+
+@pytest.fixture(scope="session")
+def cognito_postgres_connection(
+    cognito_postgres_settings: PostgresSettings,
+) -> Generator[PostgresConnection, None, None]:
+    connection = PostgresConnection(cognito_postgres_settings)
+    connection.connect()
+
+    yield connection
+
+    connection.close()
+
+
+@pytest.fixture(scope="session")
+def cognito_client_repository(
+    cognito_postgres_connection: PostgresConnection,
+) -> CognitoClientRepository:
+    return CognitoClientRepository(cognito_postgres_connection)
+
+
+@pytest.fixture(scope="session")
+def new_opensearch_settings() -> OpenSearchSettings:
+    if not os.getenv("NEW_OPENSEARCH_HOST"):
+        pytest.skip("NEW_OPENSEARCH_HOST não foi configurado.")
+
+    return OpenSearchSettings.from_env("NEW_OPENSEARCH")
+
+
+@pytest.fixture(scope="session")
+def new_opensearch_connection(
+    new_opensearch_settings: OpenSearchSettings,
+) -> Generator[OpenSearchConnection, None, None]:
+    connection = OpenSearchConnection(new_opensearch_settings)
+    connection.connect()
+
+    yield connection
+
+    connection.close()
+
+
+@pytest.fixture(scope="session")
+def new_opensearch_vulnerability_repository(
+    new_opensearch_connection: OpenSearchConnection,
+) -> OpenSearchVulnerabilityRepository:
+    return OpenSearchVulnerabilityRepository(new_opensearch_connection)
+
+
+@pytest.fixture(scope="session")
+def client_rsa_repository(
+    new_opensearch_settings: OpenSearchSettings,
+) -> OpenSearchClientRsaRepository:
+    connection_factory = OpenSearchConnectionFactory(new_opensearch_settings)
+    return OpenSearchClientRsaRepository(connection_factory)
 
 
 @pytest.fixture(scope="session")

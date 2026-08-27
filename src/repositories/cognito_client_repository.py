@@ -1,0 +1,78 @@
+from __future__ import annotations
+
+from typing import Any
+
+from psycopg import sql
+from psycopg.rows import dict_row
+
+from src.connections.postgres import PostgresConnection
+from src.models.client_metadata import ClientMetadata
+from src.queries.cognito_client_queries import (
+    SELECT_ALL_CLIENTS,
+    SELECT_CLIENT_BY_ID,
+)
+
+
+class CognitoClientRepository:
+    """Consulta os clientes disponíveis no banco Cognito."""
+
+    _ALLOWED_FIELDS = frozenset(
+        {
+            "client_id",
+            "has_rsa",
+            "octopus_endpoint",
+        }
+    )
+
+    def __init__(self, connection: PostgresConnection) -> None:
+        self._connection = connection
+
+    def get_by_client_id_has_rsa(self, client_id: str) -> ClientMetadata | None:
+        with self._connection.client.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(SELECT_CLIENT_BY_ID, (client_id,))
+            row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return self._to_client_metadata(row)
+
+    def list_clients(self) -> list[ClientMetadata]:
+        """Lista todos os clientes disponíveis para validações em lote."""
+        with self._connection.client.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(SELECT_ALL_CLIENTS)
+            rows = cursor.fetchall()
+
+        return [self._to_client_metadata(row) for row in rows]
+
+    @staticmethod
+    def _to_client_metadata(row: dict[str, Any]) -> ClientMetadata:
+        return ClientMetadata(
+            client_id=row["client_id"],
+            has_rsa=bool(row["has_rsa"]),
+            octopus_endpoint=row["octopus_endpoint"],
+        )
+
+    def get_field_by_client_id(
+        self,
+        client_id: str,
+        field_name: str,
+    ) -> Any | None:
+        """Retorna um campo permitido do cliente de forma segura."""
+        if field_name not in self._ALLOWED_FIELDS:
+            raise ValueError(f"Campo de cliente não permitido: {field_name}")
+
+        query = sql.SQL(
+            "SELECT {field} FROM public.clients WHERE client_id = %s;"
+        ).format(field=sql.Identifier(field_name))
+
+        with self._connection.client.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(query, (client_id,))
+            row = cursor.fetchone()
+
+        return None if row is None else row[field_name]
+
+    def has_rsa(self, client_id: str) -> bool | None:
+        """Retorna a flag has_rsa de um cliente, quando ele existe."""
+        value = self.get_field_by_client_id(client_id, "has_rsa")
+        return None if value is None else bool(value)
