@@ -10,7 +10,7 @@ Este projeto foi estruturado para servir como um repositório de testes de integ
 - OpenSearch
 - suporte a múltiplas instâncias/conexões
 - Pytest
-- Allure Report
+- pytest-html
 - execução local
 - execução via Docker
 - execução em pipeline
@@ -86,7 +86,6 @@ Valida somente o comportamento público dos repositories/connections expostos pe
 
 - Python 3.10+
 - Docker opcional
-- Allure CLI opcional para abrir o relatório visualmente
 
 ## 1. Criar ambiente virtual
 
@@ -159,27 +158,33 @@ PostgreSQL:
 pytest -m postgres
 ```
 
-## 6. Allure
+## 6. Relatório HTML
 
-Os resultados são gravados automaticamente em:
+O `pytest-html` gera automaticamente um relatório único em:
 
 ```text
-reports/allure-results
+reports/test-report.html
 ```
 
-Para abrir:
+Para executar os testes e gerar o relatório:
 
 ```bash
-allure serve reports/allure-results
+make report
 ```
 
-Ou gerar HTML:
+Para abrir o arquivo no navegador local:
 
 ```bash
-allure generate reports/allure-results -o reports/allure-report --clean
+make open-report
 ```
 
-> `allure-pytest` gera os arquivos de resultado. Para abrir/gerar o HTML é necessário ter o Allure CLI instalado na máquina/agente.
+Em um servidor Linux sem interface gráfica, disponibilize o relatório por HTTP:
+
+```bash
+make serve-report
+```
+
+Em seguida, acesse `http://localhost:8000/test-report.html` usando o encaminhamento da porta 8000 do VS Code.
 
 ---
 
@@ -313,7 +318,7 @@ A pipeline:
 2. instala Python;
 3. instala dependências;
 4. executa Pytest;
-5. gera `allure-results`;
+5. gera o relatório HTML;
 6. publica os resultados como artifact.
 
 A mesma estrutura pode ser transportada para:
@@ -355,7 +360,7 @@ Repository
    ↓
 Pytest
    ↓
-Allure
+pytest-html
 ```
 
 ---

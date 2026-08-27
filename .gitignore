@@ -8,10 +8,7 @@ htmlcov/
 .env
 .idea/
 .vscode/*.log
-reports/allure-results/*
-reports/allure-report/*
-!reports/allure-results/.gitkeep
-!reports/allure-report/.gitkeep
+reports/test-report.html
 dist/
 build/
 *.egg-info/
