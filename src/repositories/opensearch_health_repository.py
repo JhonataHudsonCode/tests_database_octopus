@@ -12,3 +12,8 @@ class OpenSearchHealthRepository:
     def check_connection(self) -> bool:
         """Retorna se o cluster OpenSearch responde ao ping."""
         return bool(self._connection.client.ping())
+
+    def list_indices(self) -> list[str]:
+        """Lista os nomes dos índices visíveis para o usuário configurado."""
+        indices = self._connection.client.cat.indices(format="json")
+        return sorted(item["index"] for item in indices if "index" in item)
