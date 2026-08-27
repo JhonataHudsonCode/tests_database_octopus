@@ -68,3 +68,31 @@ class OpenSearchSettings:
             use_ssl=_to_bool(_env(prefix, "USE_SSL", "false")),
             verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS", "false")),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class OpenSearchDashboardsSettings:
+    host: str
+    port: int
+    user: str
+    password: str
+    use_ssl: bool = False
+    verify_certs: bool = False
+    path_prefix: str = ""
+    request_timeout: int = 10
+
+    @classmethod
+    def from_env(
+        cls,
+        prefix: str = "OPENSEARCH_DASHBOARDS",
+    ) -> "OpenSearchDashboardsSettings":
+        return cls(
+            host=_env(prefix, "HOST"),
+            port=int(_env(prefix, "PORT", "5601")),
+            user=_env(prefix, "USER", "admin"),
+            password=_env(prefix, "PASSWORD", "admin"),
+            use_ssl=_to_bool(_env(prefix, "USE_SSL", "false")),
+            verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS", "false")),
+            path_prefix=_env(prefix, "PATH_PREFIX", "").rstrip("/"),
+            request_timeout=int(_env(prefix, "REQUEST_TIMEOUT", "10")),
+        )

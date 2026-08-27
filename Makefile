@@ -1,4 +1,4 @@
-.PHONY: install test test-postgres test-opensearch report open-report serve-report up down clean
+.PHONY: install test test-postgres test-opensearch test-dashboards report open-report serve-report up down clean
 
 PYTHON ?= python3
 
@@ -14,6 +14,9 @@ test-postgres:
 
 test-opensearch:
 	$(PYTHON) -m pytest -m opensearch
+
+test-dashboards:
+	$(PYTHON) -m pytest -m dashboards
 
 report:
 	$(PYTHON) -m pytest
