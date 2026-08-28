@@ -29,7 +29,6 @@ def _optional_env(prefix: str, name: str, default: str = "") -> str:
     key = f"{normalized_prefix}_{name}" if normalized_prefix else name
     return os.getenv(key, default).strip()
 
-
 @dataclass(frozen=True, slots=True)
 class PostgresSettings:
     host: str
@@ -37,21 +36,21 @@ class PostgresSettings:
     database: str
     user: str
     password: str
-    connect_timeout: int = 5
-    target_schema: str = "pg_catalog"
-    target_table: str = "pg_type"
+    connect_timeout: int
+    target_schema: str
+    target_table: str
 
     @classmethod
     def from_env(cls, prefix: str = "PG") -> "PostgresSettings":
         return cls(
-            host=_env(prefix, "HOST", "localhost"),
-            port=int(_env(prefix, "PORT", "5432")),
-            database=_env(prefix, "DATABASE", "qa_db"),
-            user=_env(prefix, "USER", "qa_user"),
-            password=_env(prefix, "PASSWORD", "qa_password"),
-            connect_timeout=int(_env(prefix, "CONNECT_TIMEOUT", "5")),
-            target_schema=_env(prefix, "TARGET_SCHEMA", "pg_catalog"),
-            target_table=_env(prefix, "TARGET_TABLE", "pg_type"),
+            host=_env(prefix, "HOST"),
+            port=int(_env(prefix, "PORT")),
+            database=_env(prefix, "DATABASE"),
+            user=_env(prefix, "USER"),
+            password=_env(prefix, "PASSWORD"),
+            connect_timeout=int(_env(prefix, "CONNECT_TIMEOUT")),
+            target_schema=_env(prefix, "TARGET_SCHEMA"),
+            target_table=_env(prefix, "TARGET_TABLE"),
         )
 
 
@@ -61,18 +60,18 @@ class OpenSearchSettings:
     port: int
     user: str
     password: str
-    use_ssl: bool = False
-    verify_certs: bool = False
+    use_ssl: bool
+    verify_certs: bool
 
     @classmethod
     def from_env(cls, prefix: str = "OPENSEARCH") -> "OpenSearchSettings":
         return cls(
-            host=_env(prefix, "HOST", "localhost"),
-            port=int(_env(prefix, "PORT", "9200")),
-            user=_env(prefix, "USER", "admin"),
-            password=_env(prefix, "PASSWORD", "admin"),
-            use_ssl=_to_bool(_env(prefix, "USE_SSL", "false")),
-            verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS", "false")),
+            host=_env(prefix, "HOST"),
+            port=int(_env(prefix, "PORT")),
+            user=_env(prefix, "USER"),
+            password=_env(prefix, "PASSWORD"),
+            use_ssl=_to_bool(_env(prefix, "USE_SSL")),
+            verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS")),
         )
 
 
@@ -82,10 +81,10 @@ class OpenSearchDashboardsSettings:
     port: int
     user: str
     password: str
-    use_ssl: bool = False
-    verify_certs: bool = False
-    path_prefix: str = ""
-    request_timeout: int = 10
+    use_ssl: bool
+    verify_certs: bool
+    path_prefix: str
+    request_timeout: int
 
     @classmethod
     def from_env(
@@ -94,11 +93,11 @@ class OpenSearchDashboardsSettings:
     ) -> "OpenSearchDashboardsSettings":
         return cls(
             host=_env(prefix, "HOST"),
-            port=int(_env(prefix, "PORT", "5601")),
-            user=_env(prefix, "USER", "admin"),
-            password=_env(prefix, "PASSWORD", "admin"),
-            use_ssl=_to_bool(_env(prefix, "USE_SSL", "false")),
-            verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS", "false")),
+            port=int(_env(prefix, "PORT")),
+            user=_env(prefix, "USER"),
+            password=_env(prefix, "PASSWORD"),
+            use_ssl=_to_bool(_env(prefix, "USE_SSL")),
+            verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS")),
             path_prefix=_optional_env(prefix, "PATH_PREFIX").rstrip("/"),
-            request_timeout=int(_env(prefix, "REQUEST_TIMEOUT", "10")),
+            request_timeout=int(_env(prefix, "REQUEST_TIMEOUT")),
         )
