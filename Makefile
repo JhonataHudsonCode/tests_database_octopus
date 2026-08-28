@@ -1,4 +1,4 @@
-.PHONY: install test test-postgres test-opensearch test-dashboards test-client-data report open-report serve-report up down clean
+.PHONY: install test test-postgres test-opensearch test-dashboards test-client-data check-opensearch report open-report serve-report up down clean
 
 PYTHON ?= python3
 
@@ -20,6 +20,9 @@ test-dashboards:
 
 test-client-data:
 	$(PYTHON) -m pytest -m client_data
+
+check-opensearch:
+	@set -a && . ./.env && set +a && scheme=http; if [ "$$OPENSEARCH_USE_SSL" = "true" ]; then scheme=https; fi; host="$(if $(TARGET_HOST),$(TARGET_HOST),$$OPENSEARCH_HOST)"; curl -vk --connect-timeout 10 -u "$$OPENSEARCH_USER:$$OPENSEARCH_PASSWORD" "$$scheme://$$host:$$OPENSEARCH_PORT/"
 
 report:
 	$(PYTHON) -m pytest
