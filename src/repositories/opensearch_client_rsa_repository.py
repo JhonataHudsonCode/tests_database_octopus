@@ -31,7 +31,7 @@ class OpenSearchClientRsaRepository:
                 client_host,
             )
             indices = connection.client.cat.indices(
-                index=index_name,
+                index="rsa-*",
                 format="json",
                 h="index,docs.count",
                 expand_wildcards="all",
@@ -43,15 +43,22 @@ class OpenSearchClientRsaRepository:
         found_indices = [
             VulnerabilityIndex(
                 name=item["index"],
-                document_count=int(item.get("docs.count", 0)),
+                document_count=self._parse_document_count(item.get("docs.count")),
             )
             for item in indices
             if item.get("index")
         ]
         logger.info(
-            "Índice RSA esperado no host %s: %s. Índices encontrados: %s",
+            "Índice RSA esperado no host %s: %s. Índices RSA encontrados: %s",
             client_host,
             index_name,
             [index.name for index in found_indices],
         )
         return found_indices
+
+    @staticmethod
+    def _parse_document_count(value: object) -> int:
+        if value in {None, "", "-"}:
+            return 0
+
+        return int(value)

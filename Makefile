@@ -1,4 +1,4 @@
-.PHONY: install test test-postgres test-opensearch test-dashboards test-client-data check-opensearch report open-report serve-report up down clean
+.PHONY: install test test-postgres test-opensearch test-dashboards test-client-data check-opensearch report open-report serve-report up down clean clean-cache
 
 PYTHON ?= python3
 
@@ -41,3 +41,7 @@ down:
 
 clean:
 	rm -rf .pytest_cache reports/test-report.html
+
+clean-cache:
+	rm -rf .pytest_cache
+	find . -type d -name __pycache__ -prune -exec rm -rf {} +
