@@ -30,19 +30,21 @@ def test_should_validate_vulnerability_indices_for_all_rsa_enabled_clients(
     assert clients_to_validate, "Nenhum cliente disponível para validação em lote."
 
     today = date.today()
+    rsa_enabled_clients = [
+        client for client in clients_to_validate if client.has_rsa
+    ]
+    indices = opensearch_vulnerability_repository.get_indices_for_date(
+        client_names=[client.client_id for client in rsa_enabled_clients],
+        reference_date=today,
+    )
+    indices_by_name = {index.name: index for index in indices}
     failures: list[str] = []
 
-    for client in clients_to_validate:
-        if not client.has_rsa:
-            continue
-
+    for client in rsa_enabled_clients:
         expected_index_name = (
             f"{client.client_id}_vulnerability-was-{today.strftime('%y.%m.%d')}"
         )
-        index = opensearch_vulnerability_repository.get_index_for_date(
-            client_name=client.client_id,
-            reference_date=today,
-        )
+        index = indices_by_name.get(expected_index_name)
 
         if index is None:
             failures.append(f"Índice não encontrado: {expected_index_name}")

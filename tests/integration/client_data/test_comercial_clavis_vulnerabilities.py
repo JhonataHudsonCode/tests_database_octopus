@@ -36,10 +36,12 @@ def test_should_validate_comercial_vulnerability_index_for_today(
     expected_index_name = (
         f"{INDEX_CLIENT_NAME}_vulnerability-was-{today.strftime('%y.%m.%d')}"
     )
-    index = opensearch_vulnerability_repository.get_index_for_date(
-        client_name=INDEX_CLIENT_NAME,
+    indices = opensearch_vulnerability_repository.get_indices_for_date(
+        client_names=[INDEX_CLIENT_NAME],
         reference_date=today,
     )
+    indices_by_name = {index.name: index for index in indices}
+    index = indices_by_name.get(expected_index_name)
 
     assert index is not None, f"Índice não encontrado: {expected_index_name}"
     assert index.name == expected_index_name
