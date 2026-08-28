@@ -51,7 +51,11 @@ def test_should_validate_comercial_vulnerability_index_for_today(
 
     expected_rsa_index_name = f"rsa-{today.strftime('%y.%m.%d')}"
     rsa_indices = client_rsa_repository.get_indices_for_date(
-        client_host=client.octopus_endpoint,
+        client_host=(
+            client.octopus_endpoint
+            .replace("https://", "")
+            .replace("http://", "")
+        ),
         reference_date=today,
     )
     rsa_index_names = {index.name for index in rsa_indices}

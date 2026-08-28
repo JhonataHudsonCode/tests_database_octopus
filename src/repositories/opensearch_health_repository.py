@@ -11,7 +11,10 @@ class OpenSearchHealthRepository:
 
     def check_connection(self) -> bool:
         """Retorna se o cluster OpenSearch responde ao ping."""
-        return bool(self._connection.client.ping())
+        try:
+            return bool(self._connection.client.ping())
+        except Exception:
+            return False
 
     def list_indices(self) -> list[str]:
         """Lista os nomes dos índices visíveis para o usuário configurado."""

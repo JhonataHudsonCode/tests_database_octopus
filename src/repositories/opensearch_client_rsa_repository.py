@@ -25,6 +25,11 @@ class OpenSearchClientRsaRepository:
         connection = self._connection_factory.create_for_host(client_host)
 
         try:
+            connection.client.info()
+            logger.info(
+                "Conexão com o OpenSearch do cliente realizada em %s.",
+                client_host,
+            )
             indices = connection.client.cat.indices(
                 index=index_name,
                 format="json",
