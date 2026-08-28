@@ -18,7 +18,7 @@ INDEX_CLIENT_NAME = "comercial"
 @pytest.mark.opensearch
 def test_should_validate_comercial_vulnerability_index_for_today(
     cognito_client_repository: CognitoClientRepository,
-    new_opensearch_vulnerability_repository: OpenSearchVulnerabilityRepository,
+    opensearch_vulnerability_repository: OpenSearchVulnerabilityRepository,
     client_rsa_repository: OpenSearchClientRsaRepository,
 ) -> None:
     client = cognito_client_repository.get_by_client_id_has_rsa(INDEX_CLIENT_NAME)
@@ -32,7 +32,7 @@ def test_should_validate_comercial_vulnerability_index_for_today(
     expected_index_name = (
         f"{INDEX_CLIENT_NAME}_vulnerability-was-{today.strftime('%y.%m.%d')}"
     )
-    index = new_opensearch_vulnerability_repository.get_index_for_date(
+    index = opensearch_vulnerability_repository.get_index_for_date(
         client_name=INDEX_CLIENT_NAME,
         reference_date=today,
     )

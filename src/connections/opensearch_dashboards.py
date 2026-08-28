@@ -2,15 +2,22 @@ from __future__ import annotations
 
 import requests
 
-from src.config.settings import OpenSearchDashboardsSettings
+from src.config.settings import OpenSearchSettings
 from src.connections.base import BaseConnection
 
 
 class OpenSearchDashboardsConnection(BaseConnection[requests.Session]):
     """Gerencia a sessão HTTP da API do OpenSearch Dashboards."""
 
-    def __init__(self, settings: OpenSearchDashboardsSettings) -> None:
+    def __init__(
+        self,
+        settings: OpenSearchSettings,
+        path_prefix: str = "",
+        request_timeout: int = 10,
+    ) -> None:
         self._settings = settings
+        self._path_prefix = path_prefix.rstrip("/")
+        self._request_timeout = request_timeout
         self._client: requests.Session | None = None
 
     def connect(self) -> requests.Session:
@@ -28,13 +35,13 @@ class OpenSearchDashboardsConnection(BaseConnection[requests.Session]):
         scheme = "https" if self._settings.use_ssl else "http"
         url = (
             f"{scheme}://{self._settings.host}:{self._settings.port}"
-            f"{self._settings.path_prefix}{path}"
+            f"{self._path_prefix}{path}"
         )
         return self.client.get(
             url,
             params=params,
             headers={"osd-xsrf": "true"},
-            timeout=self._settings.request_timeout,
+            timeout=self._request_timeout,
             verify=self._settings.verify_certs,
         )
 

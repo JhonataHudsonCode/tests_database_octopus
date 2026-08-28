@@ -17,7 +17,7 @@ SPECIAL_CLIENT_ID = "comercial-clavis"
 @pytest.mark.opensearch
 def test_should_validate_vulnerability_indices_for_all_rsa_enabled_clients(
     cognito_client_repository: CognitoClientRepository,
-    new_opensearch_vulnerability_repository: OpenSearchVulnerabilityRepository,
+    opensearch_vulnerability_repository: OpenSearchVulnerabilityRepository,
 ) -> None:
     clients = cognito_client_repository.list_clients()
 
@@ -38,7 +38,7 @@ def test_should_validate_vulnerability_indices_for_all_rsa_enabled_clients(
         expected_index_name = (
             f"{client.client_id}_vulnerability-was-{today.strftime('%y.%m.%d')}"
         )
-        index = new_opensearch_vulnerability_repository.get_index_for_date(
+        index = opensearch_vulnerability_repository.get_index_for_date(
             client_name=client.client_id,
             reference_date=today,
         )
