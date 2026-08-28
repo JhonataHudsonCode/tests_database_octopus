@@ -9,6 +9,7 @@ from src.repositories.opensearch_vulnerability_repository import (
 
 
 SPECIAL_CLIENT_ID = "comercial-clavis"
+CLIENT_SCHEMA = "public"
 
 
 @pytest.mark.integration
@@ -19,7 +20,7 @@ def test_should_validate_vulnerability_indices_for_all_rsa_enabled_clients(
     cognito_client_repository: CognitoClientRepository,
     opensearch_vulnerability_repository: OpenSearchVulnerabilityRepository,
 ) -> None:
-    clients = cognito_client_repository.list_clients()
+    clients = cognito_client_repository.list_clients(schema_name=CLIENT_SCHEMA)
 
     assert clients, "Nenhum cliente foi retornado por public.clients."
 

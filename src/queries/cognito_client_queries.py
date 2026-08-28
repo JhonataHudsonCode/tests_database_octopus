@@ -3,7 +3,7 @@ SELECT
     client_id,
     has_rsa,
     octopus_endpoint
-FROM public.clients
+FROM {schema_name}.clients
 WHERE client_id = %s;
 """
 
@@ -12,6 +12,6 @@ SELECT
     client_id,
     has_rsa,
     octopus_endpoint
-FROM public.clients
+FROM {schema_name}.clients
 ORDER BY client_id;
 """

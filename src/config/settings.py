@@ -9,10 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def _env(prefix: str, name: str) -> str:
-    normalized_prefix = prefix.strip("_").upper()
-    key = f"{normalized_prefix}_{name}" if normalized_prefix else name
-
+def _env(key: str) -> str:
     value = os.getenv(key)
     if value is None or value == "":
         raise ValueError(f"Variável de ambiente obrigatória não configurada: {key}")
@@ -34,14 +31,14 @@ class PostgresSettings:
     connect_timeout: int
 
     @classmethod
-    def from_env(cls, prefix: str = "PG") -> "PostgresSettings":
+    def from_env(cls) -> "PostgresSettings":
         return cls(
-            host=_env(prefix, "HOST"),
-            port=int(_env(prefix, "PORT")),
-            database=_env(prefix, "DATABASE"),
-            user=_env(prefix, "USER"),
-            password=_env(prefix, "PASSWORD"),
-            connect_timeout=int(_env(prefix, "CONNECT_TIMEOUT")),
+            host=_env("PG_HOST"),
+            port=int(_env("PG_PORT")),
+            database=_env("PG_DATABASE"),
+            user=_env("PG_USER"),
+            password=_env("PG_PASSWORD"),
+            connect_timeout=int(_env("PG_CONNECT_TIMEOUT")),
         )
 
 
@@ -55,12 +52,12 @@ class OpenSearchSettings:
     verify_certs: bool
 
     @classmethod
-    def from_env(cls, prefix: str = "OPENSEARCH") -> "OpenSearchSettings":
+    def from_env(cls) -> "OpenSearchSettings":
         return cls(
-            host=_env(prefix, "HOST"),
-            port=int(_env(prefix, "PORT")),
-            user=_env(prefix, "USER"),
-            password=_env(prefix, "PASSWORD"),
-            use_ssl=_to_bool(_env(prefix, "USE_SSL")),
-            verify_certs=_to_bool(_env(prefix, "VERIFY_CERTS")),
+            host=_env("OPENSEARCH_HOST"),
+            port=int(_env("OPENSEARCH_PORT")),
+            user=_env("OPENSEARCH_USER"),
+            password=_env("OPENSEARCH_PASSWORD"),
+            use_ssl=_to_bool(_env("OPENSEARCH_USE_SSL")),
+            verify_certs=_to_bool(_env("OPENSEARCH_VERIFY_CERTS")),
         )

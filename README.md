@@ -226,47 +226,6 @@ O teste recebe um `TableMetadata` e valida somente o contrato retornado.
 
 ---
 
-# Múltiplos bancos PostgreSQL
-
-A configuração suporta prefixos.
-
-Exemplo:
-
-```env
-SOURCE_PG_HOST=source-db
-SOURCE_PG_PORT=5432
-SOURCE_PG_DATABASE=source
-SOURCE_PG_USER=user
-SOURCE_PG_PASSWORD=password
-
-TARGET_PG_HOST=target-db
-TARGET_PG_PORT=5432
-TARGET_PG_DATABASE=target
-TARGET_PG_USER=user
-TARGET_PG_PASSWORD=password
-```
-
-No Python:
-
-```python
-from src.config.settings import PostgresSettings
-from src.connections.postgres import PostgresConnection
-
-source_settings = PostgresSettings.from_env("SOURCE_PG")
-target_settings = PostgresSettings.from_env("TARGET_PG")
-
-source = PostgresConnection(source_settings)
-target = PostgresConnection(target_settings)
-```
-
-Isso permite usar o mesmo padrão em cenários ETL, por exemplo:
-
-```text
-Source DB -> Transformação -> Target DB
-```
-
----
-
 # OpenSearch
 
 A conexão e o teste de saúde já estão incluídos.

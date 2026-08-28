@@ -11,6 +11,7 @@ from src.repositories.opensearch_client_rsa_repository import (
 )
 
 INDEX_CLIENT_NAME = "comercial"
+CLIENT_SCHEMA = "public"
 
 @pytest.mark.integration
 @pytest.mark.client_data
@@ -21,7 +22,10 @@ def test_should_validate_comercial_vulnerability_index_for_today(
     opensearch_vulnerability_repository: OpenSearchVulnerabilityRepository,
     client_rsa_repository: OpenSearchClientRsaRepository,
 ) -> None:
-    client = cognito_client_repository.get_by_client_id_has_rsa(INDEX_CLIENT_NAME)
+    client = cognito_client_repository.get_by_client_id_has_rsa(
+        schema_name=CLIENT_SCHEMA,
+        client_id=INDEX_CLIENT_NAME,
+    )
 
     assert client is not None, f"Cliente não encontrado: {INDEX_CLIENT_NAME}"
 

@@ -27,9 +27,16 @@ class CognitoClientRepository:
     def __init__(self, connection: PostgresConnection) -> None:
         self._connection = connection
 
-    def get_by_client_id_has_rsa(self, client_id: str) -> ClientMetadata | None:
+    def get_by_client_id_has_rsa(
+        self,
+        schema_name: str,
+        client_id: str,
+    ) -> ClientMetadata | None:
+        query = sql.SQL(SELECT_CLIENT_BY_ID).format(
+            schema_name=sql.Identifier(schema_name),
+        )
         with self._connection.client.cursor(row_factory=dict_row) as cursor:
-            cursor.execute(SELECT_CLIENT_BY_ID, (client_id,))
+            cursor.execute(query, (client_id,))
             row = cursor.fetchone()
 
         if row is None:
@@ -37,10 +44,13 @@ class CognitoClientRepository:
 
         return self._to_client_metadata(row)
 
-    def list_clients(self) -> list[ClientMetadata]:
+    def list_clients(self, schema_name: str) -> list[ClientMetadata]:
         """Lista todos os clientes disponíveis para validações em lote."""
+        query = sql.SQL(SELECT_ALL_CLIENTS).format(
+            schema_name=sql.Identifier(schema_name),
+        )
         with self._connection.client.cursor(row_factory=dict_row) as cursor:
-            cursor.execute(SELECT_ALL_CLIENTS)
+            cursor.execute(query)
             rows = cursor.fetchall()
 
         return [self._to_client_metadata(row) for row in rows]
@@ -55,6 +65,7 @@ class CognitoClientRepository:
 
     def get_field_by_client_id(
         self,
+        schema_name: str,
         client_id: str,
         field_name: str,
     ) -> Any | None:
@@ -63,8 +74,11 @@ class CognitoClientRepository:
             raise ValueError(f"Campo de cliente não permitido: {field_name}")
 
         query = sql.SQL(
-            "SELECT {field} FROM public.clients WHERE client_id = %s;"
-        ).format(field=sql.Identifier(field_name))
+            "SELECT {field} FROM {schema_name}.clients WHERE client_id = %s;"
+        ).format(
+            field=sql.Identifier(field_name),
+            schema_name=sql.Identifier(schema_name),
+        )
 
         with self._connection.client.cursor(row_factory=dict_row) as cursor:
             cursor.execute(query, (client_id,))
@@ -72,7 +86,11 @@ class CognitoClientRepository:
 
         return None if row is None else row[field_name]
 
-    def has_rsa(self, client_id: str) -> bool | None:
+    def has_rsa(self, schema_name: str, client_id: str) -> bool | None:
         """Retorna a flag has_rsa de um cliente, quando ele existe."""
-        value = self.get_field_by_client_id(client_id, "has_rsa")
+        value = self.get_field_by_client_id(
+            schema_name,
+            client_id,
+            "has_rsa",
+        )
         return None if value is None else bool(value)
