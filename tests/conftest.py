@@ -12,6 +12,7 @@ from src.connections.opensearch import OpenSearchConnection
 from src.connections.opensearch_factory import OpenSearchConnectionFactory
 from src.connections.opensearch_dashboards import OpenSearchDashboardsConnection
 from src.connections.postgres import PostgresConnection
+from src.connections.postgres_factory import PostgresConnectionFactory
 from src.repositories.opensearch_dashboards_repository import (
     OpenSearchDashboardsRepository,
 )
@@ -24,6 +25,9 @@ from src.repositories.opensearch_client_rsa_repository import (
     OpenSearchClientRsaRepository,
 )
 from src.repositories.postgres_catalog_repository import PostgresCatalogRepository
+
+
+COGNITO_DATABASE = "cognito"
 
 
 @pytest.fixture(scope="session")
@@ -48,6 +52,25 @@ def postgres_repository(
     postgres_connection: PostgresConnection,
 ) -> PostgresCatalogRepository:
     return PostgresCatalogRepository(postgres_connection)
+
+
+@pytest.fixture(scope="session")
+def postgres_connection_factory(
+    postgres_settings: PostgresSettings,
+) -> PostgresConnectionFactory:
+    return PostgresConnectionFactory(postgres_settings)
+
+
+@pytest.fixture(scope="session")
+def cognito_postgres_connection(
+    postgres_connection_factory: PostgresConnectionFactory,
+) -> Generator[PostgresConnection, None, None]:
+    connection = postgres_connection_factory.create_for_database(COGNITO_DATABASE)
+    connection.connect()
+
+    yield connection
+
+    connection.close()
 
 
 @pytest.fixture(scope="session")
@@ -76,9 +99,9 @@ def opensearch_repository(
 
 @pytest.fixture(scope="session")
 def cognito_client_repository(
-    postgres_connection: PostgresConnection,
+    cognito_postgres_connection: PostgresConnection,
 ) -> CognitoClientRepository:
-    return CognitoClientRepository(postgres_connection)
+    return CognitoClientRepository(cognito_postgres_connection)
 
 
 @pytest.fixture(scope="session")
