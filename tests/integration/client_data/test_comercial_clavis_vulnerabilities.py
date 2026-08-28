@@ -50,12 +50,13 @@ def test_should_validate_comercial_vulnerability_index_for_today(
     )
 
     expected_rsa_index_name = f"rsa-{today.strftime('%y.%m.%d')}"
-    rsa_index_exists = client_rsa_repository.index_exists_for_date(
+    rsa_indices = client_rsa_repository.get_indices_for_date(
         client_host=client.octopus_endpoint,
         reference_date=today,
     )
+    rsa_index_names = {index.name for index in rsa_indices}
 
-    assert rsa_index_exists, (
+    assert expected_rsa_index_name in rsa_index_names, (
         f"Índice não encontrado no OpenSearch do cliente "
         f"({client.octopus_endpoint}): {expected_rsa_index_name}"
     )
