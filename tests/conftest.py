@@ -24,7 +24,6 @@ from src.repositories.opensearch_vulnerability_repository import (
 from src.repositories.opensearch_client_rsa_repository import (
     OpenSearchClientRsaRepository,
 )
-from src.repositories.opensearch_rules_repository import OpenSearchRulesRepository
 from src.repositories.postgres_catalog_repository import PostgresCatalogRepository
 
 
@@ -118,14 +117,6 @@ def client_rsa_repository(
 ) -> OpenSearchClientRsaRepository:
     connection_factory = OpenSearchConnectionFactory(opensearch_settings)
     return OpenSearchClientRsaRepository(connection_factory)
-
-
-@pytest.fixture(scope="session")
-def opensearch_rules_repository(
-    opensearch_settings: OpenSearchSettings,
-) -> OpenSearchRulesRepository:
-    connection_factory = OpenSearchConnectionFactory(opensearch_settings)
-    return OpenSearchRulesRepository(connection_factory)
 
 
 @pytest.fixture(scope="session")
