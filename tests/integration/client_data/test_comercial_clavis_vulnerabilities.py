@@ -10,6 +10,7 @@ from src.repositories.opensearch_client_rsa_repository import (
     OpenSearchClientRsaRepository,
 )
 from src.models.rules_mapping import EXPECTED_RULES_MAPPING, RULES_INDEX_NAME
+from src.models.rsa_mapping import EXPECTED_RSA_MAPPING
 from src.validators.opensearch_mapping_validator import OpenSearchMappingValidator
 
 INDEX_CLIENT_NAME = "comercial"
@@ -108,6 +109,11 @@ def test_should_validate_comercial_vulnerability_index_for_today(
     assert rsa_metadata.mapping, (
         f"O índice {expected_rsa_index_name} não possui mapping configurado."
     )
+    rsa_mapping_errors = OpenSearchMappingValidator().validate(
+        actual_properties=rsa_metadata.mapping.get("properties", {}),
+        expected_properties=EXPECTED_RSA_MAPPING,
+    )
+    assert not rsa_mapping_errors, "\n".join(rsa_mapping_errors)
 
     rules_metadata = client_rsa_repository.get_index_metadata(
         client_host=(

@@ -51,6 +51,9 @@ class OpenSearchMappingValidator:
                 continue
 
             actual_type = actual_definition.get("type")
+            if expected_definition == "object" and "properties" in actual_definition:
+                continue
+
             if actual_type != expected_definition:
                 errors.append(
                     f"Tipo incorreto para {field_path}. "
