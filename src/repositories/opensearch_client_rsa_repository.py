@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from src.connections.opensearch_factory import OpenSearchConnectionFactory
+from src.models.opensearch_index_metadata import OpenSearchIndexMetadata
 from src.models.vulnerability_index import VulnerabilityIndex
 
 
@@ -78,6 +79,30 @@ class OpenSearchClientRsaRepository:
             connection.close()
 
         return response["hits"]["hits"]
+
+    def get_index_metadata(
+        self,
+        client_host: str,
+        index_name: str,
+    ) -> OpenSearchIndexMetadata:
+        """Retorna mapping e data de criação de um índice RSA."""
+        connection = self._connection_factory.create_for_host(client_host)
+
+        try:
+            mapping_response = connection.client.indices.get_mapping(index=index_name)
+            settings_response = connection.client.indices.get_settings(index=index_name)
+        finally:
+            connection.close()
+
+        mapping = mapping_response[index_name]["mappings"]
+        creation_date = settings_response[index_name]["settings"]["index"][
+            "creation_date"
+        ]
+        return OpenSearchIndexMetadata(
+            name=index_name,
+            created_at=datetime.fromtimestamp(int(creation_date) / 1000),
+            mapping=mapping,
+        )
 
     @staticmethod
     def _parse_document_count(value: object) -> int:

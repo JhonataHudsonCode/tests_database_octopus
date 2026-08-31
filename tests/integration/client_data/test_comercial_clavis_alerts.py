@@ -55,6 +55,16 @@ def test_should_validate_comercial_alerts_indices_for_today(
     assert vulnerability_documents, (
         f"O índice {expected_vulnerability_index} não retornou documentos."
     )
+    vulnerability_metadata = opensearch_vulnerability_repository.get_index_metadata(
+        expected_vulnerability_index,
+    )
+    assert vulnerability_metadata.created_at.date() == today, (
+        f"O índice {expected_vulnerability_index} não foi criado hoje. "
+        f"Data encontrada: {vulnerability_metadata.created_at:%Y-%m-%d}."
+    )
+    assert vulnerability_metadata.mapping, (
+        f"O índice {expected_vulnerability_index} não possui mapping configurado."
+    )
 
     expected_rsa_index = f"rsa-{today:%y.%m.%d}"
     client_host = (
@@ -75,3 +85,14 @@ def test_should_validate_comercial_alerts_indices_for_today(
         index_name=expected_rsa_index,
     )
     assert rsa_documents, f"O índice {expected_rsa_index} não retornou documentos."
+    rsa_metadata = client_rsa_repository.get_index_metadata(
+        client_host=client_host,
+        index_name=expected_rsa_index,
+    )
+    assert rsa_metadata.created_at.date() == today, (
+        f"O índice {expected_rsa_index} não foi criado hoje. "
+        f"Data encontrada: {rsa_metadata.created_at:%Y-%m-%d}."
+    )
+    assert rsa_metadata.mapping, (
+        f"O índice {expected_rsa_index} não possui mapping configurado."
+    )
