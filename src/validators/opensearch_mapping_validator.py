@@ -29,6 +29,12 @@ class OpenSearchMappingValidator:
             field_path = f"{path}.{field_name}" if path else field_name
             actual_definition = actual_properties.get(field_name)
 
+            print(
+                f"[mapping] campo={field_path} | "
+                f"esperado={expected_definition!r} | "
+                f"obtido={actual_definition!r}"
+            )
+
             if actual_definition is None:
                 errors.append(f"Campo ausente no mapping: {field_path}")
                 continue
