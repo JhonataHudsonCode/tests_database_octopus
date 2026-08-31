@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import date
+from typing import Any
 
 from src.connections.opensearch_factory import OpenSearchConnectionFactory
 from src.models.vulnerability_index import VulnerabilityIndex
@@ -31,7 +32,7 @@ class OpenSearchClientRsaRepository:
                 client_host,
             )
             indices = connection.client.cat.indices(
-                index=index_name,
+                index="rsa-*",
                 format="json",
                 h="index,docs.count",
                 expand_wildcards="all",
@@ -43,7 +44,7 @@ class OpenSearchClientRsaRepository:
         found_indices = [
             VulnerabilityIndex(
                 name=item["index"],
-                document_count=int(item.get("docs.count", 0)),
+                document_count=self._parse_document_count(item.get("docs.count")),
             )
             for item in indices
             if item.get("index")
@@ -55,3 +56,32 @@ class OpenSearchClientRsaRepository:
             [index.name for index in found_indices],
         )
         return found_indices
+
+    def get_documents(
+        self,
+        client_host: str,
+        index_name: str,
+        size: int = 10,
+    ) -> list[dict[str, Any]]:
+        """Retorna documentos de um índice RSA do OpenSearch do cliente."""
+        connection = self._connection_factory.create_for_host(client_host)
+
+        try:
+            response = connection.client.search(
+                index=index_name,
+                body={
+                    "size": size,
+                    "query": {"match_all": {}},
+                },
+            )
+        finally:
+            connection.close()
+
+        return response["hits"]["hits"]
+
+    @staticmethod
+    def _parse_document_count(value: object) -> int:
+        if value in {None, "", "-"}:
+            return 0
+
+        return int(value)

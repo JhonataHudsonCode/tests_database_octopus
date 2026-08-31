@@ -20,6 +20,7 @@ class CognitoClientRepository:
         {
             "client_id",
             "has_rsa",
+            "has_alerts",
             "octopus_endpoint",
         }
     )
@@ -27,7 +28,7 @@ class CognitoClientRepository:
     def __init__(self, connection: PostgresConnection) -> None:
         self._connection = connection
 
-    def get_by_client_id_has_rsa(
+    def get_by_client_id(
         self,
         schema_name: str,
         client_id: str,
@@ -43,6 +44,14 @@ class CognitoClientRepository:
             return None
 
         return self._to_client_metadata(row)
+
+    def get_by_client_id_has_rsa(
+        self,
+        schema_name: str,
+        client_id: str,
+    ) -> ClientMetadata | None:
+        """Mantém compatibilidade com os testes de RSA existentes."""
+        return self.get_by_client_id(schema_name, client_id)
 
     def list_clients(self, schema_name: str) -> list[ClientMetadata]:
         """Lista todos os clientes disponíveis para validações em lote."""
@@ -60,6 +69,7 @@ class CognitoClientRepository:
         return ClientMetadata(
             client_id=row["client_id"],
             has_rsa=bool(row["has_rsa"]),
+            has_alerts=bool(row["has_alerts"]),
             octopus_endpoint=row["octopus_endpoint"],
         )
 
@@ -92,5 +102,14 @@ class CognitoClientRepository:
             schema_name,
             client_id,
             "has_rsa",
+        )
+        return None if value is None else bool(value)
+
+    def has_alerts(self, schema_name: str, client_id: str) -> bool | None:
+        """Retorna a flag has_alerts de um cliente, quando ele existe."""
+        value = self.get_field_by_client_id(
+            schema_name,
+            client_id,
+            "has_alerts",
         )
         return None if value is None else bool(value)

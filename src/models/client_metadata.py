@@ -7,4 +7,5 @@ from dataclasses import dataclass
 class ClientMetadata:
     client_id: str
     has_rsa: bool
+    has_alerts: bool
     octopus_endpoint: str
