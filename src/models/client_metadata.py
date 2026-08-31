@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
+## olaa
 @dataclass(frozen=True, slots=True)
 class ClientMetadata:
     client_id: str
